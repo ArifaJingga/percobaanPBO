@@ -39,9 +39,9 @@ public class RegisterFrame extends javax.swing.JFrame {
         btnRegistrasi = new javax.swing.JButton();
         jLabel11 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtTelepon = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        txtNama = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -115,8 +115,20 @@ public class RegisterFrame extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         jLabel4.setText("Nama:");
 
+        txtTelepon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtTeleponActionPerformed(evt);
+            }
+        });
+
         jLabel5.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
         jLabel5.setText("No Telp:");
+
+        txtNama.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtNamaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -137,9 +149,9 @@ public class RegisterFrame extends javax.swing.JFrame {
                             .addComponent(jLabel4))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextField1)
+                            .addComponent(txtTelepon)
                             .addComponent(txtUsername, javax.swing.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.TRAILING)))
+                            .addComponent(txtNama, javax.swing.GroupLayout.Alignment.TRAILING)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(btnLogin)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -153,11 +165,11 @@ public class RegisterFrame extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel5)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtTelepon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel11)
@@ -189,21 +201,51 @@ public class RegisterFrame extends javax.swing.JFrame {
     private void btnRegistrasiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrasiActionPerformed
         // TODO add your handling code here:
         try {
-            String sql ="insert into akun values ('"+txtUsername.getText()+"','"+txtPassword.getText()+"')";
-            String sql1 ="insert into user(username) values('"+txtUsername.getText()+"')";
-            java.sql.Connection conn=(Connection)Config.configDB();
-            java.sql.PreparedStatement pst=conn.prepareStatement(sql);
-            java.sql.PreparedStatement pst1=conn.prepareStatement(sql1);
-            pst.execute();
-            pst1.execute();
+        // Validasi input sebelum menyimpan data
+            if (txtNama.getText().isEmpty() || txtPassword.getText().isEmpty() || txtNama.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Semua field harus diisi!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+        // Query untuk menyisipkan data ke tabel akun dan pelanggan
+            String sql = "INSERT INTO akun (username, password) VALUES (?, ?)";
+            String sql1 = "INSERT INTO pelanggan (nama,telepon, username) VALUES (?, ?, ?)";
+
+        // Koneksi ke database
+            java.sql.Connection conn = (java.sql.Connection) Config.configDB();
+
+            try (java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+                 java.sql.PreparedStatement pst1 = conn.prepareStatement(sql1)) {
+
+            // Set parameter untuk query pertama
+                pst.setString(1, txtUsername.getText());
+                pst.setString(2, txtPassword.getText());
+                pst.executeUpdate();
+
+            // Set parameter untuk query kedua
+                pst1.setString(1, txtNama.getText());
+                pst1.setString(2, txtTelepon.getText());
+                pst1.setString(3, txtUsername.getText());
+                pst1.executeUpdate();
+            }
+
             JOptionPane.showMessageDialog(null, "Penyimpanan data berhasil");
+        // Navigasi ke frame login
             this.setVisible(false);
             new LoginFrame().setVisible(true);
-            
-        } catch(Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage());
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnRegistrasiActionPerformed
+
+    private void txtNamaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNamaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtNamaActionPerformed
+
+    private void txtTeleponActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTeleponActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtTeleponActionPerformed
 
     /**
      * @param args the command line arguments
@@ -252,9 +294,9 @@ public class RegisterFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField txtNama;
     private javax.swing.JPasswordField txtPassword;
+    private javax.swing.JTextField txtTelepon;
     private javax.swing.JTextField txtUsername;
     // End of variables declaration//GEN-END:variables
 }
